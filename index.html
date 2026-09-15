@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>0919 總召時間軸</title>
+<meta name="theme-color" content="#B85C7A" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="0919總召" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#FBF7F4;
+    --card:#FFFFFF;
+    --ink:#332A2C;
+    --sub:#8C7B7E;
+    --muted:#C7BDBE;
+    --line:#EBE1DD;
+    --accent:#B85C7A;
+    --accent-soft:#F3DEE4;
+    --warn:#B9791F;
+    --warn-soft:#FBEBD3;
+    --warn-line:#EBD6A8;
+    --own:#5B4E9E;
+    --own-soft:#E4E1F5;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);}
+  body{font-family:"Noto Sans TC",-apple-system,BlinkMacSystemFont,sans-serif;padding-bottom:64px;}
+  header{padding:28px 20px 14px;text-align:center;}
+  header .date{font-family:"Noto Serif TC",serif;font-size:15px;color:var(--sub);letter-spacing:.04em;}
+  header h1{font-family:"Noto Serif TC",serif;font-weight:600;font-size:24px;margin:4px 0 0;}
+  .status{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 20px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:8px;}
+  .status .now{font-size:12.5px;color:var(--sub);flex-shrink:0;}
+  .status .btns{display:flex;gap:6px;}
+  .status button{font-size:12.5px;color:var(--accent);background:none;border:1px solid var(--accent-soft);padding:6px 10px;border-radius:20px;white-space:nowrap;}
+  .status button.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .status button:active{opacity:.7;}
+  main{max-width:520px;margin:0 auto;padding:16px 16px 0;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;}
+  .card.current{border:1.5px solid var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .card.overlap{background:var(--warn-soft);border-color:var(--warn-line);}
+  .card .time{font-size:12.5px;color:var(--sub);margin-bottom:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .card.current .time{color:var(--accent);font-weight:500;}
+  .card.overlap .time{color:var(--warn);}
+  .card .time input[type=time]{font-size:12.5px;border:1px solid var(--line);border-radius:6px;padding:2px 4px;font-family:inherit;background:#fff;}
+  .tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--accent-soft);color:var(--accent);}
+  .card.overlap .tag{background:#F3D68A;color:#6E4D0E;}
+  .tag.custom{background:var(--own-soft);color:var(--own);}
+  .item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-top:1px solid var(--line);}
+  .item:first-of-type{border-top:none;}
+  .item input[type=checkbox]{margin-top:4px;width:18px;height:18px;flex-shrink:0;accent-color:var(--accent);}
+  .item label{font-size:14.5px;line-height:1.55;flex:1;}
+  .item.done label{color:var(--muted);text-decoration:line-through;}
+  .item .txt{font-size:14.5px;line-height:1.5;flex:1;border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-family:inherit;background:#fff;}
+  .item .del{flex-shrink:0;font-size:11px;color:var(--sub);border:1px solid var(--line);border-radius:20px;padding:3px 8px;background:#fff;}
+  .src{display:inline-block;font-size:11.5px;font-weight:500;color:var(--sub);margin-right:6px;}
+  .src.eng{color:#8C5A6B;}
+  .src.lun{color:#6E7A5A;}
+  .src.own{color:var(--own);}
+  .nest{background:var(--warn-soft);border:1px solid var(--warn-line);border-radius:10px;padding:10px 10px 6px;margin:10px 0 2px 20px;}
+  .nest.nest-current{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);}
+  .nest-time{font-size:11.5px;color:var(--warn);margin-bottom:6px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  .nest-time input[type=time]{font-size:11.5px;border:1px solid var(--warn-line);border-radius:6px;padding:1px 3px;font-family:inherit;background:#fff;}
+  .addbox{background:var(--card);border:1.5px dashed var(--muted);border-radius:14px;padding:14px 16px;margin-bottom:14px;}
+  .addbox .row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+  .addbox input[type=time],.addbox select{font-size:13px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-family:inherit;}
+  .addbox input[type=text]{flex:1;min-width:140px;font-size:14px;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-family:inherit;}
+  .addbox button{font-size:13px;background:var(--accent);color:#fff;border:none;border-radius:20px;padding:7px 16px;}
+  .hidden-box{font-size:12.5px;color:var(--sub);margin:0 0 16px;}
+  .hidden-box summary{cursor:pointer;color:var(--accent);}
+  .hidden-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--line);}
+  .hidden-item button{font-size:11px;color:var(--accent);background:none;border:1px solid var(--accent-soft);border-radius:20px;padding:2px 8px;}
+  .reset-link{display:block;text-align:center;font-size:12px;color:var(--sub);margin:8px 0 20px;text-decoration:underline;}
+  footer{max-width:520px;margin:24px auto 0;padding:0 20px;font-size:12px;color:var(--sub);line-height:1.7;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="date">2026 年 9 月 19 日(六)</div>
+  <h1>尹凰 &amp; 韋程總召時間軸</h1>
+</header>
+
+<div class="status">
+  <span class="now" id="nowLabel">載入中…</span>
+  <div class="btns">
+    <button id="notifyBtn">開啟提醒</button>
+    <button id="editBtn">編輯</button>
+  </div>
+</div>
+
+<main id="list"></main>
+
+<footer>
+  文定於萊特套房,午宴於萊特薇庭3F 釜宮。畫面每 30 秒依手機時間自動反白「現在」的區塊;完全包在某個時段裡面的小事項,會直接顯示在那張卡片內(標⤷),不會被誤讀成排在後面。打勾、修改內容、新增項目都只存在這支手機、這個瀏覽器裡。若開啟提醒,在頁面開著或最近開過的情況下會嘗試跳出通知,但不保證每次都準時,重要時刻仍建議搭配另外匯入的日曆保險。
+</footer>
+
+<script>
+const NS = "w0919-";
+const ns = (k) => NS + k;
+
+const blocks = [
+  {id:"b01a",s:"04:30",e:"05:30",items:[["eng","文定","新郎妝髮(艾文老師)"]]},
+  {id:"b01",s:"04:30",e:"07:00",items:[["eng","文定","新娘開妝整體造型(Maggie老師)"]]},
+  {id:"b01b",s:"05:00",e:"06:30",items:[["eng","文定","尹凰媽媽妝髮(莎拉老師)"]]},
+  {id:"b01c",s:"05:30",e:"07:00",items:[["eng","文定","韋程媽媽/婆婆妝髮(艾文老師)"]]},
+  {id:"b01d",s:"06:30",e:"08:00",items:[["eng","文定","凰阿姨妝髮(莎拉老師)"]]},
+  {id:"b02",s:"06:45",e:"07:00",items:[["eng","文定","平面攝影抵達"]]},
+  {id:"b01e",s:"07:00",e:"08:00",items:[["eng","文定","本人髮型,不含妝(艾文老師)"]]},
+  {id:"b03",s:"07:00",e:"07:30",items:[["eng","文定","動態影像抵達、晨袍拍攝(08:30前完成造型)"]]},
+  {id:"b04",s:"08:15",e:"08:30",items:[["eng","文定","Celia再次確認文定物品&動線"]]},
+  {id:"b05",s:"08:30",e:"08:45",items:[["lun","午宴","花藝佈置抵達(3F)"]]},
+  {id:"b06",s:"08:45",e:"08:50",items:[["eng","文定","男女方文定人員陸續抵達(男方喝茶6位:爸/媽/本人/舅舅/二姨/二叔)"]]},
+  {id:"b07",s:"08:50",e:"09:05",overlap:true,items:[
+    ["eng","文定","納徵&禮品擺設、交聘儀式"],
+    ["lun","午宴","廠商正式進場(花藝就位)"]
+  ]},
+  {id:"b08",s:"09:05",e:"09:25",items:[["eng","文定","訂婚儀式(奉茶、壓茶甌、交換戒指、戴金飾、雙方合照)"]]},
+  {id:"b09",s:"09:25",e:"09:55",items:[["eng","文定","更換造型(白紗,約30分)"]]},
+  {id:"b10",s:"09:55",e:"10:10",items:[["eng","文定","First Look(7F戶外)"]]},
+  {id:"b11",s:"10:10",e:"10:30",items:[["eng","文定","謝恩出閣(謝恩、蓋頭紗、揭頭紗、向韋程父母敬茶)"]]},
+  {id:"b12",s:"10:30",e:"10:40",items:[["lun","午宴","拍貼機進場,服務至15:00"]]},
+  {id:"b13",s:"10:40",e:"11:30",items:[["lun","午宴","午宴彩排(新人+雙方主婚人,確認影片/音樂)"]]},
+  {id:"b13a",s:"10:45",e:"11:00",items:[["lun","午宴","確認賓客留言本&電話留聲機定位;7桌(男21、24/女6、8、9、10、11)擺好一次性底片相機"]]},
+  {id:"b13b",s:"11:00",e:"11:10",items:[["lun","午宴","招待5位集合(男:鎧豊/亞珩/雨琤/昀聖‧女:佳珉),發放胸花、座位總表、桌位圖"]]},
+  {id:"b14",s:"11:25",e:"12:00",items:[["lun","午宴","證婚儀式(2F 玻璃儀式堂)‧11:25最早入場,自由參加,未參加者11:30後可直接於3F入席"]]},
+  {id:"b15",s:"12:00",e:"12:20",items:[["lun","午宴","午宴迎賓(招待人員就位)"]]},
+  {id:"b16",s:"12:20",e:"12:30",items:[["lun","午宴","視賓客到場約八成,確認開席時間"]]},
+  {id:"b17",s:"12:30",e:"12:50",items:[["lun","午宴","開場→播放婚紗影片→第一次進場(交手儀式)→主婚人定位→舉杯致意"]]},
+  {id:"b18",s:"12:50",e:"12:55",items:[["lun","午宴","用餐時間開始"]]},
+  {id:"b19",s:"12:55",e:"13:25",items:[["lun","午宴","更換第二套禮服(最後10分鐘CUE韋程換西裝)"]]},
+  {id:"b20",s:"13:25",e:"13:45",items:[["lun","午宴","第二次進場(敲杯)→傳遞幸福(捧花)→Kahoot遊戲開始"]]},
+  {id:"b21",s:"13:45",e:"14:10",items:[["lun","午宴","新人&雙方家長逐桌敬酒"]]},
+  {id:"b22",s:"14:10",e:"14:35",items:[["lun","午宴","補妝時間(補妝15分+移動10分)"]]},
+  {id:"b23",s:"14:30",e:"14:40",overlap:true,items:[["lun","午宴","第三次進場(對開屏)→播放SDE→感謝時間"]]},
+  {id:"b24",s:"14:40",e:"15:00",items:[["lun","午宴","送客(最晚離場16:00)"]]}
+];
+
+let editMode = false;
+
+function toMinutes(t){const [h,m]=t.split(":").map(Number);return h*60+m;}
+
+function loadCustom(){
+  try{ return JSON.parse(localStorage.getItem(ns("custom")) || "[]"); }catch(e){ return []; }
+}
+function saveCustom(arr){ localStorage.setItem(ns("custom"), JSON.stringify(arr)); }
+
+function getAllBlocks(){
+  const base = blocks.map(b => {
+    let s = b.s, e = b.e;
+    const timeOv = localStorage.getItem(ns("time-"+b.id));
+    if (timeOv){ try{ const o = JSON.parse(timeOv); s = o.s||s; e = o.e||e; }catch(err){} }
+    const items = b.items.map((it, ii) => {
+      const itemId = b.id + "-" + ii;
+      const textOv = localStorage.getItem(ns("txt-"+itemId));
+      return { id:itemId, cls:it[0], label:it[1], text: textOv !== null ? textOv : it[2] };
+    }).filter(it => localStorage.getItem(ns("hidden-"+it.id)) !== "1");
+    return { id:b.id, s, e, overlap: !!b.overlap, items, custom:false };
+  }).filter(b => b.items.length > 0);
+
+  const custom = loadCustom().map(c => ({...c, custom:true}));
+  return [...base, ...custom];
+}
+
+function nestBlocks(list){
+  const arr = list.map(b => ({...b, sm: toMinutes(b.s), em: toMinutes(b.e), children: []}));
+  arr.forEach(b => {
+    let bestParent = null;
+    arr.forEach(p => {
+      if (p === b) return;
+      const pDur = p.em - p.sm, bDur = b.em - b.sm;
+      if (p.sm <= b.sm && b.em <= p.em && pDur > bDur) {
+        if (!bestParent || (p.em - p.sm) < (bestParent.em - bestParent.sm)) bestParent = p;
+      }
+    });
+    b._parent = bestParent;
+  });
+  const top = [];
+  arr.forEach(b => { if (b._parent) b._parent.children.push(b); else top.push(b); });
+  top.sort((a,b) => a.sm - b.sm);
+  top.forEach(b => b.children.sort((a,b) => a.sm - b.sm));
+  return top;
+}
+
+function getHiddenList(){
+  const out = [];
+  blocks.forEach(b => b.items.forEach((it, ii) => {
+    const itemId = b.id + "-" + ii;
+    if (localStorage.getItem(ns("hidden-"+itemId)) === "1"){
+      const textOv = localStorage.getItem(ns("txt-"+itemId));
+      out.push({ itemId, blockId:b.id, s:b.s, label:it[1], text: textOv !== null ? textOv : it[2] });
+    }
+  }));
+  return out;
+}
+
+function buildItemRow(b, it){
+  const chkId = "chk-" + it.id;
+  const row = document.createElement("div");
+  row.className = "item";
+  const checked = localStorage.getItem(ns(chkId)) === "1";
+  if (checked) row.classList.add("done");
+
+  if (editMode){
+    row.innerHTML = `
+      <input type="checkbox" ${checked?"checked":""} data-role="chk"/>
+      <input type="text" class="txt" value="${it.text.replace(/"/g,'&quot;')}" />
+      <button class="del" type="button">${b.custom ? "刪除" : "隱藏"}</button>
+    `;
+    row.querySelector('[data-role=chk]').addEventListener("change", (e) => {
+      localStorage.setItem(ns(chkId), e.target.checked ? "1":"0");
+    });
+    row.querySelector(".txt").addEventListener("change", (e) => {
+      if (b.custom){
+        const arr = loadCustom();
+        const bi = arr.findIndex(c => c.id === b.id);
+        if (bi > -1){
+          const ii = arr[bi].items.findIndex(x => x.id === it.id);
+          if (ii > -1){ arr[bi].items[ii].text = e.target.value; saveCustom(arr); }
+        }
+      } else {
+        localStorage.setItem(ns("txt-"+it.id), e.target.value);
+      }
+    });
+    row.querySelector(".del").addEventListener("click", () => {
+      if (b.custom){
+        let arr = loadCustom();
+        arr = arr.filter(c => c.id !== b.id);
+        saveCustom(arr);
+      } else {
+        localStorage.setItem(ns("hidden-"+it.id), "1");
+      }
+      render();
+    });
+  } else {
+    row.innerHTML = `
+      <input type="checkbox" id="${chkId}" ${checked?"checked":""}/>
+      <label for="${chkId}"><span class="src ${it.cls}">${it.label}</span>${it.text}</label>
+    `;
+    row.querySelector("input").addEventListener("change", (e) => {
+      localStorage.setItem(ns(chkId), e.target.checked ? "1":"0");
+      row.classList.toggle("done", e.target.checked);
+    });
+  }
+  return row;
+}
+
+function buildTimeEditor(b, timeEl, onSave){
+  timeEl.innerHTML = `<input type="time" value="${b.s}" data-role="start"/> – <input type="time" value="${b.e}" data-role="end"/>`;
+  timeEl.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("change", () => {
+      const s = timeEl.querySelector('[data-role=start]').value;
+      const e = timeEl.querySelector('[data-role=end]').value;
+      onSave(s, e);
+      render();
+    });
+  });
+}
+
+function buildParentCard(b, nowMin){
+  const isCurrent = nowMin >= b.sm && nowMin < b.em;
+  const card = document.createElement("div");
+  card.className = "card" + (isCurrent ? " current" : "") + (b.overlap ? " overlap" : "");
+
+  const time = document.createElement("div");
+  time.className = "time";
+  if (editMode){
+    buildTimeEditor(b, time, (s,e) => {
+      if (b.custom){
+        const arr = loadCustom();
+        const idx = arr.findIndex(c => c.id === b.id);
+        if (idx > -1){ arr[idx].s = s; arr[idx].e = e; saveCustom(arr); }
+      } else {
+        localStorage.setItem(ns("time-"+b.id), JSON.stringify({s,e}));
+      }
+    });
+  } else {
+    time.innerHTML = `<span>${b.s}–${b.e}</span>` + (isCurrent ? `<span class="tag">現在</span>` : "") + (b.overlap ? `<span class="tag">兩邊同時</span>` : "") + (b.custom ? `<span class="tag custom">自訂</span>` : "");
+  }
+  card.appendChild(time);
+
+  b.items.forEach(it => card.appendChild(buildItemRow(b, it)));
+  return card;
+}
+
+function buildNestBox(b, nowMin){
+  const isCurrent = nowMin >= b.sm && nowMin < b.em;
+  const box = document.createElement("div");
+  box.className = "nest" + (isCurrent ? " nest-current" : "");
+
+  const time = document.createElement("div");
+  time.className = "nest-time";
+  if (editMode){
+    buildTimeEditor(b, time, (s,e) => {
+      if (b.custom){
+        const arr = loadCustom();
+        const idx = arr.findIndex(c => c.id === b.id);
+        if (idx > -1){ arr[idx].s = s; arr[idx].e = e; saveCustom(arr); }
+      } else {
+        localStorage.setItem(ns("time-"+b.id), JSON.stringify({s,e}));
+      }
+    });
+  } else {
+    time.innerHTML = `<span>⤷ ${b.s}–${b.e} 期間內</span>` + (isCurrent ? `<span class="tag">現在</span>` : "") + (b.custom ? `<span class="tag custom">自訂</span>` : "");
+  }
+  box.appendChild(time);
+
+  b.items.forEach(it => box.appendChild(buildItemRow(b, it)));
+  return box;
+}
+
+function render(){
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  const nowMin = new Date().getHours()*60 + new Date().getMinutes();
+  const topBlocks = nestBlocks(getAllBlocks());
+
+  topBlocks.forEach((b) => {
+    const card = buildParentCard(b, nowMin);
+    b.children.forEach(child => card.appendChild(buildNestBox(child, nowMin)));
+    list.appendChild(card);
+    const isCurrent = nowMin >= b.sm && nowMin < b.em;
+    if (isCurrent && !editMode) setTimeout(() => card.scrollIntoView({behavior:"smooth", block:"center"}), 300);
+  });
+
+  if (editMode){
+    const box = document.createElement("div");
+    box.className = "addbox";
+    box.innerHTML = `
+      <div class="row">
+        <input type="time" id="newS" value="12:00"/>
+        <input type="time" id="newE" value="12:15"/>
+        <select id="newCat">
+          <option value="eng">文定</option>
+          <option value="lun">午宴</option>
+          <option value="own" selected>自訂</option>
+        </select>
+      </div>
+      <div class="row">
+        <input type="text" id="newText" placeholder="要新增的事項…"/>
+        <button id="newAdd" type="button">＋ 新增</button>
+      </div>
+    `;
+    list.appendChild(box);
+    const catLabel = {eng:"文定", lun:"午宴", own:"自訂"};
+    box.querySelector("#newAdd").addEventListener("click", () => {
+      const s = box.querySelector("#newS").value;
+      const e = box.querySelector("#newE").value;
+      const cat = box.querySelector("#newCat").value;
+      const text = box.querySelector("#newText").value.trim();
+      if (!text || !s) { alert("請至少填時間跟內容"); return; }
+      const arr = loadCustom();
+      const id = "c" + Date.now();
+      arr.push({ id, s, e: e || s, items:[{ id: id+"-0", cls:cat, label:catLabel[cat], text }] });
+      saveCustom(arr);
+      render();
+    });
+
+    const hidden = getHiddenList();
+    if (hidden.length){
+      const details = document.createElement("details");
+      details.className = "hidden-box";
+      details.innerHTML = `<summary>已隱藏項目(${hidden.length})</summary>`;
+      hidden.forEach(h => {
+        const row = document.createElement("div");
+        row.className = "hidden-item";
+        row.innerHTML = `<span>${h.s} · ${h.label} ${h.text}</span><button type="button">還原</button>`;
+        row.querySelector("button").addEventListener("click", () => {
+          localStorage.removeItem(ns("hidden-"+h.itemId));
+          render();
+        });
+        details.appendChild(row);
+      });
+      list.appendChild(details);
+    }
+
+    const resetLink = document.createElement("a");
+    resetLink.href = "#";
+    resetLink.className = "reset-link";
+    resetLink.textContent = "重設所有修改(還原成原始流程)";
+    resetLink.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      if (!confirm("確定要清除所有修改、新增、隱藏紀錄嗎?打勾狀態不會被清除。")) return;
+      Object.keys(localStorage).filter(k => k.startsWith(ns("txt-")) || k.startsWith(ns("hidden-")) || k.startsWith(ns("time-")) || k === ns("custom")).forEach(k => localStorage.removeItem(k));
+      render();
+    });
+    list.appendChild(resetLink);
+  }
+
+  const now = new Date();
+  document.getElementById("nowLabel").textContent = "現在 " + now.toTimeString().slice(0,5);
+}
+
+render();
+setInterval(() => { if (!editMode) render(); }, 30000);
+
+document.getElementById("editBtn").addEventListener("click", () => {
+  editMode = !editMode;
+  document.getElementById("editBtn").textContent = editMode ? "完成編輯" : "編輯";
+  document.getElementById("editBtn").classList.toggle("on", editMode);
+  render();
+});
+
+function scheduleNotifications(){
+  if (!("Notification" in window)) return;
+  const now = new Date();
+  getAllBlocks().forEach((b) => {
+    const [h,m] = b.s.split(":").map(Number);
+    const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
+    const delay = target - now;
+    if (delay > 0 && delay < 1000*60*60*20) {
+      setTimeout(() => {
+        if (Notification.permission === "granted") {
+          const first = b.items[0];
+          new Notification("現在該做:" + b.s, { body: first ? first.text : "", tag: b.id });
+        }
+      }, delay);
+    }
+  });
+}
+
+document.getElementById("notifyBtn").addEventListener("click", () => {
+  if (!("Notification" in window)) {
+    alert("這支手機的瀏覽器不支援通知。");
+    return;
+  }
+  Notification.requestPermission().then((perm) => {
+    if (perm === "granted") {
+      document.getElementById("notifyBtn").textContent = "提醒已開啟";
+      document.getElementById("notifyBtn").classList.add("on");
+      scheduleNotifications();
+    } else {
+      document.getElementById("notifyBtn").textContent = "未取得通知權限";
+    }
+  });
+});
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
