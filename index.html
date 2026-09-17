@@ -78,6 +78,28 @@
   .hidden-item button{font-size:11px;color:var(--accent);background:none;border:1px solid var(--accent-soft);border-radius:20px;padding:2px 8px;}
   .reset-link{display:block;text-align:center;font-size:12px;color:var(--sub);margin:8px 0 20px;text-decoration:underline;}
   footer{max-width:520px;margin:24px auto 0;padding:0 20px;font-size:12px;color:var(--sub);line-height:1.7;}
+  .tabbar{max-width:520px;margin:0 auto;padding:0 16px 14px;display:flex;gap:8px;}
+  .tabbar button{flex:1;font-size:14px;color:var(--sub);background:var(--card);border:1px solid var(--line);padding:9px 0;border-radius:20px;}
+  .tabbar button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+  .res-section{max-width:520px;margin:0 auto 24px;padding:0 16px;}
+  .res-title{font-size:15px;font-weight:500;margin:0 0 4px;}
+  .res-sub{font-size:12.5px;color:var(--sub);margin:0 0 10px;line-height:1.6;}
+  .photo-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .photo-card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card);cursor:pointer;}
+  .photo-card img{width:100%;height:90px;object-fit:cover;display:block;}
+  .photo-card .cap{font-size:11px;color:var(--sub);padding:5px 6px;line-height:1.4;}
+  .file-btn{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--ink);width:100%;text-align:left;}
+  .search-box{width:100%;font-size:14px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:inherit;margin-bottom:10px;background:#fff;}
+  .tbl-card{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden;}
+  .tbl-card summary{padding:10px 12px;font-size:13.5px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;}
+  .tbl-card summary .cnt{color:var(--sub);font-size:12px;flex-shrink:0;}
+  .tbl-names{padding:0 12px 12px;font-size:13px;color:var(--sub);line-height:1.9;border-top:1px solid var(--line);padding-top:8px;}
+  .tbl-names mark{background:var(--accent-soft);color:var(--accent);border-radius:4px;padding:0 2px;}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
+  .lightbox img{max-width:100%;max-height:100%;border-radius:8px;}
+  .lightbox .close{position:absolute;top:16px;right:20px;color:#fff;font-size:28px;background:none;border:none;line-height:1;}
 </style>
 </head>
 <body>
@@ -87,23 +109,57 @@
   <h1>尹凰 &amp; 韋程總召時間軸</h1>
 </header>
 
-<div class="status">
-  <span class="now" id="nowLabel">載入中…</span>
-  <div class="btns">
-    <button id="notifyBtn">開啟提醒</button>
-    <button id="editBtn">編輯</button>
-  </div>
+<div class="tabbar">
+  <button id="tabBtnTimeline" class="active">時間軸</button>
+  <button id="tabBtnData">資料</button>
 </div>
 
-<main id="list"></main>
+<div id="panelTimeline" class="tab-panel active">
+  <div class="status">
+    <span class="now" id="nowLabel">載入中…</span>
+    <div class="btns">
+      <button id="notifyBtn">開啟提醒</button>
+      <button id="editBtn">編輯</button>
+    </div>
+  </div>
 
-<footer>
-  文定於萊特套房,午宴於萊特薇庭3F 釜宮。畫面每 30 秒依手機時間自動反白「現在」的區塊;完全包在某個時段裡面的小事項,會直接顯示在那張卡片內(標⤷),不會被誤讀成排在後面。打勾、修改內容、新增項目都只存在這支手機、這個瀏覽器裡。若開啟提醒,在頁面開著或最近開過的情況下會嘗試跳出通知,但不保證每次都準時,重要時刻仍建議搭配另外匯入的日曆保險。
-</footer>
+  <main id="list"></main>
+
+  <footer>
+    文定於萊特套房,午宴於萊特薇庭3F 釜宮。畫面每 30 秒依手機時間自動反白「現在」的區塊;完全包在某個時段裡面的小事項,會直接顯示在那張卡片內(標⤷),不會被誤讀成排在後面。打勾、修改內容、新增項目都只存在這支手機、這個瀏覽器裡。若開啟提醒,在頁面開著或最近開過的情況下會嘗試跳出通知,但不保證每次都準時,重要時刻仍建議搭配另外匯入的日曆保險。
+  </footer>
+</div>
+
+<div id="panelData" class="tab-panel">
+  <div class="res-section" style="margin-top:16px">
+    <div class="res-title">花藝確認照片</div>
+    <div class="res-sub">鹿森林婚宴佈置,點照片可放大查看</div>
+    <div class="photo-row" id="floristPhotos"></div>
+  </div>
+
+  <div class="res-section">
+    <div class="res-title">招待注意事項(更新版)</div>
+    <div class="res-sub">含6位招待姓名、流程說明,9/24前有效連結</div>
+    <button class="file-btn" id="openUsherPdf" type="button">
+      <span>📄</span><span>開啟 PDF</span>
+    </button>
+  </div>
+
+  <div class="res-section">
+    <div class="res-title">桌次總表(26桌‧共245位賓客)</div>
+    <div class="res-sub">輸入姓名可快速找到賓客在哪一桌;點桌號展開/收合名單</div>
+    <input type="text" class="search-box" id="guestSearch" placeholder="搜尋賓客姓名…" />
+    <div id="tableList"></div>
+  </div>
+</div>
 
 <script>
 const NS = "w0919-";
 const ns = (k) => NS + k;
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function lsRemove(k){ try{ localStorage.removeItem(k); }catch(e){} }
+function lsKeys(){ try{ return Object.keys(localStorage); }catch(e){ return []; } }
 
 const blocks = [
   {id:"b01a",s:"04:30",e:"05:30",items:[["eng","文定","新郎妝髮(艾文老師)"]]},
@@ -115,7 +171,7 @@ const blocks = [
   {id:"b01e",s:"07:00",e:"08:00",items:[["eng","文定","本人髮型,不含妝(艾文老師)"]]},
   {id:"b03",s:"07:00",e:"07:30",items:[["eng","文定","動態影像抵達、晨袍拍攝(08:30前完成造型)"]]},
   {id:"b04",s:"08:15",e:"08:30",items:[["eng","文定","Celia再次確認文定物品&動線"]]},
-  {id:"b05",s:"08:30",e:"08:45",items:[["lun","午宴","花藝佈置抵達(3F)"]]},
+  {id:"b05",s:"08:30",e:"08:45",items:[["lun","午宴","花藝廠商抵達,於萊特薇庭外面等候(09:00才能進場佈置)"]]},
   {id:"b06",s:"08:45",e:"08:50",items:[["eng","文定","男女方文定人員陸續抵達(男方喝茶6位:爸/媽/本人/舅舅/二姨/二叔)"]]},
   {id:"b07",s:"08:50",e:"09:05",overlap:true,items:[
     ["eng","文定","納徵&禮品擺設、交聘儀式"],
@@ -123,22 +179,27 @@ const blocks = [
   ]},
   {id:"b08",s:"09:05",e:"09:25",items:[["eng","文定","訂婚儀式(奉茶、壓茶甌、交換戒指、戴金飾、雙方合照)"]]},
   {id:"b09",s:"09:25",e:"09:55",items:[["eng","文定","更換造型(白紗,約30分)"]]},
-  {id:"b10",s:"09:55",e:"10:10",items:[["eng","文定","First Look(7F戶外)"]]},
+  {id:"g01",s:"08:30",e:"08:45",items:[["own","致贈","新秘Maggie喜餅+紅包$45000‧造型剛完成、更衣前空檔;若這時沒機會,14:10–14:35補妝結束後是備用時機"]]},
+  {id:"g02",s:"09:30",e:"09:50",items:[["own","致贈","婚佈鹿森林喜餅+紅包$36800(時段暫定)‧實際完成佈置的時間要跟廠商確認;此時妳可能仍在文定儀式,建議請人代轉交"]]},
+  {id:"b10",s:"09:55",e:"10:10",items:[["eng","文定","First Look(視天氣:8F露台區或1F花圃走道區,攝影師常在此拍;雨天則改7F走道或房間內)"]]},
   {id:"b11",s:"10:10",e:"10:30",items:[["eng","文定","謝恩出閣(謝恩、蓋頭紗、揭頭紗、向韋程父母敬茶)"]]},
-  {id:"b12",s:"10:30",e:"10:40",items:[["lun","午宴","拍貼機進場,服務至15:00"]]},
+  {id:"b12",s:"10:30",e:"10:40",items:[["lun","午宴","拍貼機進場,服務至15:00‧同時致贈喜餅"]]},
   {id:"b13",s:"10:40",e:"11:30",items:[["lun","午宴","午宴彩排(新人+雙方主婚人,確認影片/音樂)"]]},
+  {id:"g03",s:"11:10",e:"11:25",items:[["own","致贈","主持人CC喜餅+紅包$25000(時段建議)‧他確切到場時間流程表沒寫,建議先跟Celia確認;抓彩排結束、證婚開始前這段空檔"]]},
   {id:"b13a",s:"10:45",e:"11:00",items:[["lun","午宴","確認賓客留言本&電話留聲機定位;7桌(男21、24/女6、8、9、10、11)擺好一次性底片相機"]]},
-  {id:"b13b",s:"11:00",e:"11:10",items:[["lun","午宴","招待5位集合(男:鎧豊/亞珩/雨琤/昀聖‧女:佳珉),發放胸花、座位總表、桌位圖"]]},
+  {id:"b13b",s:"11:00",e:"11:10",items:[["lun","午宴","招待6位集合(男4:鎧豊/亞珩/雨琤/昀聖‧女2:佳珉+1位待確認姓名),新娘會給一包(胸花/座位總表/桌位圖)由總召轉發"],["own","致贈","招待紅包$1200×4=$4800‧呂米/源源/阿二/劉小胖是鎧豊/亞珩/雨琤/昀聖的暱稱,即男方4位招待"]]},
   {id:"b14",s:"11:25",e:"12:00",items:[["lun","午宴","證婚儀式(2F 玻璃儀式堂)‧11:25最早入場,自由參加,未參加者11:30後可直接於3F入席"]]},
   {id:"b15",s:"12:00",e:"12:20",items:[["lun","午宴","午宴迎賓(招待人員就位)"]]},
   {id:"b16",s:"12:20",e:"12:30",items:[["lun","午宴","視賓客到場約八成,確認開席時間"]]},
   {id:"b17",s:"12:30",e:"12:50",items:[["lun","午宴","開場→播放婚紗影片→第一次進場(交手儀式)→主婚人定位→舉杯致意"]]},
   {id:"b18",s:"12:50",e:"12:55",items:[["lun","午宴","用餐時間開始"]]},
-  {id:"b19",s:"12:55",e:"13:25",items:[["lun","午宴","更換第二套禮服(最後10分鐘CUE韋程換西裝)"]]},
+  {id:"b19",s:"12:55",e:"13:25",items:[["lun","午宴","更換第二套禮服(30分)"]]},
+  {id:"b19a",s:"13:15",e:"13:25",items:[["lun","午宴","CUE韋程換西裝(最後10分鐘)"]]},
   {id:"b20",s:"13:25",e:"13:45",items:[["lun","午宴","第二次進場(敲杯)→傳遞幸福(捧花)→Kahoot遊戲開始"]]},
   {id:"b21",s:"13:45",e:"14:10",items:[["lun","午宴","新人&雙方家長逐桌敬酒"]]},
   {id:"b22",s:"14:10",e:"14:35",items:[["lun","午宴","補妝時間(補妝15分+移動10分)"]]},
-  {id:"b23",s:"14:30",e:"14:40",overlap:true,items:[["lun","午宴","第三次進場(對開屏)→播放SDE→感謝時間"]]},
+  {id:"g04",s:"14:15",e:"14:25",items:[["own","致贈","婚攝Ken喜餅+紅包$21300、婚錄喜餅‧新娘補妝空檔,兩人拍攝需求較低,比06:45–07:00剛到場時更適合"]]},
+  {id:"b23",s:"14:35",e:"14:40",items:[["lun","午宴","第三次進場(對開屏)→播放SDE→感謝時間‧新娘確認:會等補妝完成才三進,不會兩邊同時"]]},
   {id:"b24",s:"14:40",e:"15:00",items:[["lun","午宴","送客(最晚離場16:00)"]]}
 ];
 
@@ -147,20 +208,20 @@ let editMode = false;
 function toMinutes(t){const [h,m]=t.split(":").map(Number);return h*60+m;}
 
 function loadCustom(){
-  try{ return JSON.parse(localStorage.getItem(ns("custom")) || "[]"); }catch(e){ return []; }
+  try{ return JSON.parse(lsGet(ns("custom")) || "[]"); }catch(e){ return []; }
 }
-function saveCustom(arr){ localStorage.setItem(ns("custom"), JSON.stringify(arr)); }
+function saveCustom(arr){ lsSet(ns("custom"), JSON.stringify(arr)); }
 
 function getAllBlocks(){
   const base = blocks.map(b => {
     let s = b.s, e = b.e;
-    const timeOv = localStorage.getItem(ns("time-"+b.id));
+    const timeOv = lsGet(ns("time-"+b.id));
     if (timeOv){ try{ const o = JSON.parse(timeOv); s = o.s||s; e = o.e||e; }catch(err){} }
     const items = b.items.map((it, ii) => {
       const itemId = b.id + "-" + ii;
-      const textOv = localStorage.getItem(ns("txt-"+itemId));
+      const textOv = lsGet(ns("txt-"+itemId));
       return { id:itemId, cls:it[0], label:it[1], text: textOv !== null ? textOv : it[2] };
-    }).filter(it => localStorage.getItem(ns("hidden-"+it.id)) !== "1");
+    }).filter(it => lsGet(ns("hidden-"+it.id)) !== "1");
     return { id:b.id, s, e, overlap: !!b.overlap, items, custom:false };
   }).filter(b => b.items.length > 0);
 
@@ -192,8 +253,8 @@ function getHiddenList(){
   const out = [];
   blocks.forEach(b => b.items.forEach((it, ii) => {
     const itemId = b.id + "-" + ii;
-    if (localStorage.getItem(ns("hidden-"+itemId)) === "1"){
-      const textOv = localStorage.getItem(ns("txt-"+itemId));
+    if (lsGet(ns("hidden-"+itemId)) === "1"){
+      const textOv = lsGet(ns("txt-"+itemId));
       out.push({ itemId, blockId:b.id, s:b.s, label:it[1], text: textOv !== null ? textOv : it[2] });
     }
   }));
@@ -204,7 +265,7 @@ function buildItemRow(b, it){
   const chkId = "chk-" + it.id;
   const row = document.createElement("div");
   row.className = "item";
-  const checked = localStorage.getItem(ns(chkId)) === "1";
+  const checked = lsGet(ns(chkId)) === "1";
   if (checked) row.classList.add("done");
 
   if (editMode){
@@ -214,7 +275,7 @@ function buildItemRow(b, it){
       <button class="del" type="button">${b.custom ? "刪除" : "隱藏"}</button>
     `;
     row.querySelector('[data-role=chk]').addEventListener("change", (e) => {
-      localStorage.setItem(ns(chkId), e.target.checked ? "1":"0");
+      lsSet(ns(chkId), e.target.checked ? "1":"0");
     });
     row.querySelector(".txt").addEventListener("change", (e) => {
       if (b.custom){
@@ -225,7 +286,7 @@ function buildItemRow(b, it){
           if (ii > -1){ arr[bi].items[ii].text = e.target.value; saveCustom(arr); }
         }
       } else {
-        localStorage.setItem(ns("txt-"+it.id), e.target.value);
+        lsSet(ns("txt-"+it.id), e.target.value);
       }
     });
     row.querySelector(".del").addEventListener("click", () => {
@@ -234,7 +295,7 @@ function buildItemRow(b, it){
         arr = arr.filter(c => c.id !== b.id);
         saveCustom(arr);
       } else {
-        localStorage.setItem(ns("hidden-"+it.id), "1");
+        lsSet(ns("hidden-"+it.id), "1");
       }
       render();
     });
@@ -244,7 +305,7 @@ function buildItemRow(b, it){
       <label for="${chkId}"><span class="src ${it.cls}">${it.label}</span>${it.text}</label>
     `;
     row.querySelector("input").addEventListener("change", (e) => {
-      localStorage.setItem(ns(chkId), e.target.checked ? "1":"0");
+      lsSet(ns(chkId), e.target.checked ? "1":"0");
       row.classList.toggle("done", e.target.checked);
     });
   }
@@ -277,7 +338,7 @@ function buildParentCard(b, nowMin){
         const idx = arr.findIndex(c => c.id === b.id);
         if (idx > -1){ arr[idx].s = s; arr[idx].e = e; saveCustom(arr); }
       } else {
-        localStorage.setItem(ns("time-"+b.id), JSON.stringify({s,e}));
+        lsSet(ns("time-"+b.id), JSON.stringify({s,e}));
       }
     });
   } else {
@@ -303,7 +364,7 @@ function buildNestBox(b, nowMin){
         const idx = arr.findIndex(c => c.id === b.id);
         if (idx > -1){ arr[idx].s = s; arr[idx].e = e; saveCustom(arr); }
       } else {
-        localStorage.setItem(ns("time-"+b.id), JSON.stringify({s,e}));
+        lsSet(ns("time-"+b.id), JSON.stringify({s,e}));
       }
     });
   } else {
@@ -372,7 +433,7 @@ function render(){
         row.className = "hidden-item";
         row.innerHTML = `<span>${h.s} · ${h.label} ${h.text}</span><button type="button">還原</button>`;
         row.querySelector("button").addEventListener("click", () => {
-          localStorage.removeItem(ns("hidden-"+h.itemId));
+          lsRemove(ns("hidden-"+h.itemId));
           render();
         });
         details.appendChild(row);
@@ -387,7 +448,7 @@ function render(){
     resetLink.addEventListener("click", (ev) => {
       ev.preventDefault();
       if (!confirm("確定要清除所有修改、新增、隱藏紀錄嗎?打勾狀態不會被清除。")) return;
-      Object.keys(localStorage).filter(k => k.startsWith(ns("txt-")) || k.startsWith(ns("hidden-")) || k.startsWith(ns("time-")) || k === ns("custom")).forEach(k => localStorage.removeItem(k));
+      lsKeys().filter(k => k.startsWith(ns("txt-")) || k.startsWith(ns("hidden-")) || k.startsWith(ns("time-")) || k === ns("custom")).forEach(k => lsRemove(k));
       render();
     });
     list.appendChild(resetLink);
@@ -441,9 +502,103 @@ document.getElementById("notifyBtn").addEventListener("click", () => {
   });
 });
 
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {});
+const TABLES = [{"table": "0", "cat": "主桌", "count": "12人", "names": ["王韋程", "蔡尹凰", "王金印", "翁嬪惠", "翁嵩琳", "張正芬", "王庭湖", "蔡宗穆", "劉瑞美", "劉楊尾", "劉得榮", "蔡陳玉英"]}, {"table": "1", "cat": "男方媽媽親友", "count": "10人", "names": ["翁嬪玲", "馬淮龍1", "馬淮龍2", "翁芷瑩", "翁昀聖", "涂榮錦", "涂雋胤", "翁凱亭", "翁靖媚", "馬雨琤"]}, {"table": "2", "cat": "男方爸爸親友", "count": "10人", "names": ["王張鑾仔1(靠近主桌)", "王張鑾仔2(靠近主桌)", "王庭湖1", "王庭湖2", "王庭湖3", "王庭湖4", "王昭舜1", "王昭舜2", "王昭舜3(童)", "王昭舜4(童)"]}, {"table": "3", "cat": "男方爸爸親友", "count": "10人", "names": ["王堂印1", "王堂印2", "王堂印3", "王堂印4", "王堂印5", "王禎祿1", "王禎祿2", "王禎祿3", "王禎祿4", "馬亞珩(靠近1桌)"]}, {"table": "4", "cat": "男方爸爸親友", "count": "10人(2素)", "names": ["邱媽媽1", "邱媽媽2", "邱媽媽3", "邱媽媽4", "邱媽媽5", "邱媽媽6", "仙姑1(素)", "仙姑2(素)", "翊竹1", "翊竹2"]}, {"table": "5", "cat": "男方爸爸親友", "count": "10人", "names": ["王乃央1", "王乃央2", "王乃央3", "王乃央4", "王乃央5", "王乃央6", "王乃央7", "王乃央8", "王乃央9", "王乃央10"]}, {"table": "6", "cat": "天空守護者", "count": "10人1童", "names": ["侯姿敏(西)", "廖宇貞(西)", "李盈盈(西)", "陳岳樟(西)", "陳若瑜(西)", "孫靜瀅(西)", "黃羽珩(西)", "賴政男", "陳婕㳖(西)", "李維國", "李璟淏(童)"]}, {"table": "7", "cat": "男方爸爸親友", "count": "10人", "names": ["王順永1", "王順永2", "王順永3", "王順用1", "王順用2", "王順弘1", "王順弘2", "王錦水1", "王錦水2", "王錦水3"]}, {"table": "8", "cat": "新娘大學朋友", "count": "10人(1素)", "names": ["呂佳珉(西)", "呂保明", "李映柔(素)(西)", "李翊維", "張聿姍(西)", "鍾嘉元(西)", "李志政(西)", "卓彥嘉(西)", "林佑宣", "楊維國(西)"]}, {"table": "9", "cat": "斑城女孩", "count": "9人", "names": ["陳一心(西)", "李珊(西)", "陳宣佑", "朱美綺(西)", "呂妙慧(西)", "黃慈雯(西)", "周祖菡(西)", "林玥妏(西)", "翁淳郁(西)"]}, {"table": "10", "cat": "新娘大學朋友", "count": "10人", "names": ["蔡佳螢(西)", "杜建邦", "林佳欣(西)", "李喬筠(西)", "蘇子芸(西)", "吳沛昕(西)", "湯詠晴(西)", "李琬淳(西)", "王喬(西)", "王振益"]}, {"table": "11", "cat": "新娘麻吉", "count": "9人(1素)", "names": ["張哲源(西)", "吳亭瑩(西)", "陳虹余(西)", "許懷謙", "陳宜君(西)", "林彥佑(素)(西)", "周珈羽(西)", "劉芸妤(西)", "林仁修"]}, {"table": "12", "cat": "男方爸爸親友", "count": "9人", "names": ["王錦泉1", "王錦泉2", "王錦泉3", "王錦泉4", "王錦泉5", "邱木山1", "邱木山2", "張正弦1", "張正弦2"]}, {"table": "13", "cat": "女方長輩", "count": "10人", "names": ["劉瑞麗", "劉素芬", "劉秉遠", "王君智", "王國豪", "蔡尹絃", "五叔公1", "五叔公2", "五叔公3", "五叔公4"]}, {"table": "14", "cat": "男方媽媽朋友", "count": "10人", "names": ["洪老師1", "洪老師2", "素碧老師1", "素碧老師2", "黃平瑚1", "黃平瑚2", "賴萬財1", "賴萬財2", "升廷", "榕渝"]}, {"table": "15", "cat": "女方長輩", "count": "9人1童", "names": ["陳美秀", "蔡宗權", "蔡欣吟", "蔡欣妍", "蔡沐妍(童)", "陳黃瀞葵", "朱慧珠", "蔡宗儒", "蔡慈翊", "蔡孟娟"]}, {"table": "16", "cat": "男方爸爸親友", "count": "10人", "names": ["進華1", "進華2", "景熙1", "景熙2", "里長1", "里長2", "政德1", "政德2", "姚夫人1", "姚夫人2"]}, {"table": "17", "cat": "外埔國小", "count": "10人", "names": ["禎佑", "碧惠1", "碧惠2", "慧菁", "英哲", "英錫", "博帆", "惠雯", "仟芳", "欣宜"]}, {"table": "18", "cat": "男方媽媽朋友", "count": "10人", "names": ["建良1", "建良2", "子鋆1", "子鋆2", "馨文1", "馨文2", "仁堂1", "仁堂2", "庭宇(靠近19桌)", "庭涵(靠近19桌)"]}, {"table": "19", "cat": "外埔國小", "count": "10人", "names": ["雨農", "佳蓉１", "佳蓉２", "宣宏", "金山1", "金山2", "淑媛", "加印", "勝得", "曉萍"]}, {"table": "20", "cat": "史上最強吃雞小團", "count": "6人2童", "names": ["陳建翔", "林昱甫", "Casey", "Dovie(童)", "Casper(童)", "李淑閔", "Jim", "莊峻宏(靠近18桌)"]}, {"table": "21", "cat": "咪挺好夥伴", "count": "8人2童", "names": ["莊志強", "洪國煜", "賴郁汝", "徐楷評", "賴怡丹", "徐品涵(童)", "徐品迪(童)", "陳必榮", "蘇筠婷", "吳曉莉"]}, {"table": "22", "cat": "M.G.", "count": "8人", "names": ["李厚誼", "吳岱嶧", "陳曉綺", "蔣彥亭", "陳姿蓉", "蕭至謙1", "蕭至謙2", "王彥鈞"]}, {"table": "23", "cat": "戰神癡漢聯盟", "count": "9人1童", "names": ["何文舜1", "何文舜2", "牛牛(童)", "周凱盛1", "周凱盛2", "高堃哲", "許瑋玲", "簡大仁", "陳建勛1(靠近21桌)", "陳建勛2(靠近21桌)"]}, {"table": "24", "cat": "戰神癡漢聯盟", "count": "8人1童", "names": ["魏俊育1", "魏俊育2", "趙柏彥1", "趙柏彥2", "趙以諾(童)", "高翊翔", "黃佳保", "郭東霖", "桑顯舜"]}, {"table": "預備桌", "cat": "", "count": "", "names": []}];
+
+const FLORIST_PHOTOS = [
+  {src:"assets/florist-proposal.jpg", cap:"鹿森林婚宴佈置專案表‧$35,000"},
+  {src:"assets/florist-signboard.jpg", cap:"卡典割字歡迎牌(寬54×高38)"},
+  {src:"assets/florist-arch.jpg", cap:"拱門示意圖"}
+];
+
+function escapeHtml(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function renderFloristPhotos(){
+  const row = document.getElementById("floristPhotos");
+  if (!row) return;
+  row.innerHTML = "";
+  FLORIST_PHOTOS.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "photo-card";
+    card.innerHTML = `<img src="${p.src}" alt="${p.cap}"/><div class="cap">${p.cap}</div>`;
+    card.addEventListener("click", () => openLightbox(p.src));
+    row.appendChild(card);
+  });
 }
+
+function openLightbox(src){
+  const box = document.createElement("div");
+  box.className = "lightbox";
+  box.innerHTML = `<button class="close" type="button" aria-label="關閉">&times;</button><img src="${src}"/>`;
+  box.addEventListener("click", () => box.remove());
+  document.body.appendChild(box);
+}
+
+function renderTableList(filter){
+  const wrap = document.getElementById("tableList");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  const q = (filter || "").trim();
+  TABLES.forEach(t => {
+    const matched = q && t.names.some(n => n.includes(q));
+    if (t.names.length === 0 && !q) {
+      const card = document.createElement("div");
+      card.className = "tbl-card";
+      card.innerHTML = `<summary style="cursor:default;display:flex;justify-content:space-between;"><span>${t.table}</span><span class="cnt">無指定賓客(備用)</span></summary>`;
+      wrap.appendChild(card);
+      return;
+    }
+    if (t.names.length === 0) return;
+    const details = document.createElement("details");
+    details.className = "tbl-card";
+    if (matched) details.open = true;
+    const namesHtml = t.names.map(n => {
+      if (q && n.includes(q)) return `<mark>${escapeHtml(n)}</mark>`;
+      return escapeHtml(n);
+    }).join("、");
+    details.innerHTML = `
+      <summary><span>${t.table}桌 · ${t.cat}</span><span class="cnt">${t.count}</span></summary>
+      <div class="tbl-names">${namesHtml}</div>
+    `;
+    if (q && !matched) {
+      const stillShow = t.table.includes(q) || (t.cat && t.cat.includes(q));
+      if (!stillShow) return;
+    }
+    wrap.appendChild(details);
+  });
+  if (q && wrap.children.length === 0) {
+    wrap.innerHTML = `<div style="font-size:13px;color:var(--sub);padding:8px 0;">找不到符合「${escapeHtml(q)}」的賓客</div>`;
+  }
+}
+
+document.getElementById("guestSearch").addEventListener("input", (e) => {
+  renderTableList(e.target.value);
+});
+
+document.getElementById("openUsherPdf").addEventListener("click", () => {
+  window.open("assets/婚禮招待注意事項_更新版.pdf", "_blank");
+});
+
+document.getElementById("tabBtnTimeline").addEventListener("click", () => {
+  document.getElementById("tabBtnTimeline").classList.add("active");
+  document.getElementById("tabBtnData").classList.remove("active");
+  document.getElementById("panelTimeline").classList.add("active");
+  document.getElementById("panelData").classList.remove("active");
+});
+document.getElementById("tabBtnData").addEventListener("click", () => {
+  document.getElementById("tabBtnData").classList.add("active");
+  document.getElementById("tabBtnTimeline").classList.remove("active");
+  document.getElementById("panelData").classList.add("active");
+  document.getElementById("panelTimeline").classList.remove("active");
+});
+
+renderFloristPhotos();
+renderTableList("");
+
+try {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+} catch (e) {}
 </script>
 </body>
 </html>

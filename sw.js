@@ -1,10 +1,14 @@
-const CACHE_NAME = "wedding-0919-v1";
+const CACHE_NAME = "wedding-0919-v2";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
   "./icon-192.png",
-  "./icon-512.png"
+  "./icon-512.png",
+  "./assets/florist-proposal.jpg",
+  "./assets/florist-signboard.jpg",
+  "./assets/florist-arch.jpg",
+  "./assets/婚禮招待注意事項_更新版.pdf"
 ];
 
 self.addEventListener("install", (event) => {
